@@ -3,3 +3,5 @@ bin
 *.csproj.user
 *.suo
 *.cache
+/GreenshotTFSPlugin/PascalOtt.snk
+/packages

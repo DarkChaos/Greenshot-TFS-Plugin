@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -152,18 +153,20 @@ namespace GreenshotTFSPlugin
         {
             using (MemoryStream stream = new MemoryStream())
             {
-
-                OutputSettings outputSettings = new OutputSettings();
-                outputSettings.Format=config.UploadFormat;
-                outputSettings.JPGQuality=config.UploadJpegQuality;
-                host.SaveToStream(image, stream, outputSettings);
+                SurfaceOutputSettings outputSettings = new SurfaceOutputSettings
+                {
+                    Format = config.UploadFormat,
+                    JPGQuality = config.UploadJpegQuality
+                };
+                ImageOutput.SaveToStream(image,null, stream, outputSettings);
                 byte[] buffer = stream.GetBuffer();
+                
 
                 try
                 {
-                    string filename = Path.GetFileName(host.GetFilename(config.UploadFormat, captureDetails));
-                    string contentType = "image/" + config.UploadFormat.ToString();
-                    TFSInfo tfsInfo = TFSUtils.UploadToTFS(buffer, captureDetails.DateTime.ToString(), filename, contentType);
+                    string filename = Path.GetFileName(FilenameHelper.GetFilename(config.UploadFormat, captureDetails));
+                    string contentType = $"image/{config.UploadFormat}";
+                    TFSInfo tfsInfo = TFSUtils.UploadToTFS(buffer, captureDetails.DateTime.ToString(CultureInfo.CurrentCulture), filename, contentType);
                     if (tfsInfo == null)
                     {
                         return false;
@@ -207,7 +210,7 @@ namespace GreenshotTFSPlugin
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show(Language.GetString("tfs", LangKey.upload_failure) + " " + e.ToString());
+                    MessageBox.Show(Language.GetString("tfs", $"{LangKey.upload_failure} {e}"));
                 }
                 finally
                 {
@@ -217,5 +220,8 @@ namespace GreenshotTFSPlugin
             return false;
         }
 
+        public void Dispose()
+        {
+        }
     }
 }

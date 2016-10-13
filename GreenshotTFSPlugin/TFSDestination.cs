@@ -36,7 +36,7 @@ namespace GreenshotTFSPlugin
 			}
 		}
 
-		public override bool ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
+		public override ExportInformation ExportCapture(bool manuallyInitiated, ISurface surface, ICaptureDetails captureDetails)
 		{
 			using (Image image = surface.GetImageForExport()) {
 				bool uploaded = plugin.Upload(captureDetails, image);
@@ -44,7 +44,7 @@ namespace GreenshotTFSPlugin
 					surface.SendMessageEvent(this, SurfaceMessageTyp.Info, "Exported to TFS");
 					surface.Modified = false;
 				}
-				return uploaded;
+				return new ExportInformation("TFS", "", uploaded);
 			}
 		}
 	}
