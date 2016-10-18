@@ -354,47 +354,54 @@
                 try
                 {
                    using (var tfs = new TfsTeamProjectCollection(new Uri(this.textbox_tfsUrl.Text)))
-                    {
-                        WorkItemStore workItemStore = (WorkItemStore)tfs.GetService(typeof(WorkItemStore));
-                        Project project = workItemStore.Projects[this.textbox_defaultProject.Text];
-
-                        // workType
-                        WorkItemTypeCollection workItemTypes = project.WorkItemTypes;
-                        combobox_workItemType.Items.Clear();
-                        foreach (WorkItemType workItemType in workItemTypes)
+                   {
+                        WorkItemStore workItemStore = tfs.GetService<WorkItemStore>();
+                        if (workItemStore != null)
                         {
-                            combobox_workItemType.Items.Add(workItemType.Name);
-                        }
+                            Project project = workItemStore.Projects[this.textbox_defaultProject.Text];
 
-                        combobox_workItemType.SelectedValue = config.TfsWorkItemType;
-                        if (combobox_workItemType.SelectedItem == null)
+                            // workType
+                            WorkItemTypeCollection workItemTypes = project.WorkItemTypes;
+                            combobox_workItemType.Items.Clear();
+                            foreach (WorkItemType workItemType in workItemTypes)
+                            {
+                                combobox_workItemType.Items.Add(workItemType.Name);
+                            }
+
+                            combobox_workItemType.SelectedValue = config.TfsWorkItemType;
+                            if (combobox_workItemType.SelectedItem == null)
+                            {
+                                combobox_workItemType.SelectedIndex = 0;
+                            }
+
+                            this.BindScreenByItemType();
+
+                            // area
+                            combobox_AreaPath.Items.Clear();
+                            combobox_AreaPath.Items.Add(project.Name);
+                            this.BindComboBoxTree(combobox_AreaPath, project.Name, project.AreaRootNodes);
+                            combobox_AreaPath.SelectedValue = config.TfsAreaPath;
+                            if (combobox_AreaPath.SelectedItem == null && combobox_AreaPath.Items.Count > 0)
+                            {
+                                combobox_AreaPath.SelectedIndex = 0;
+                            }
+
+                            // iteration
+                            combobox_IterationPath.Items.Clear();
+                            combobox_IterationPath.Items.Add(project.Name);
+                            this.BindComboBoxTree(combobox_IterationPath, project.Name, project.IterationRootNodes);
+                            combobox_IterationPath.SelectedValue = config.TfsIterationPath;
+                            if (combobox_IterationPath.SelectedItem == null && combobox_IterationPath.Items.Count > 0)
+                            {
+                                combobox_IterationPath.SelectedIndex = 0;
+                            }
+
+                            textbox_Priority.Value = config.TfsPriority;
+                        }
+                        else
                         {
-                            combobox_workItemType.SelectedIndex = 0;
+                            MessageBox.Show("No WorkItem Found!");
                         }
-
-                        this.BindScreenByItemType();
-
-                        // area
-                        combobox_AreaPath.Items.Clear();
-                        combobox_AreaPath.Items.Add(project.Name);
-                        this.BindComboBoxTree(combobox_AreaPath, project.Name, project.AreaRootNodes);
-                        combobox_AreaPath.SelectedValue = config.TfsAreaPath;
-                        if (combobox_AreaPath.SelectedItem == null && combobox_AreaPath.Items.Count > 0)
-                        {
-                            combobox_AreaPath.SelectedIndex = 0;
-                        }
-
-                        // iteration
-                        combobox_IterationPath.Items.Clear();
-                        combobox_IterationPath.Items.Add(project.Name);
-                        this.BindComboBoxTree(combobox_IterationPath, project.Name, project.IterationRootNodes);
-                        combobox_IterationPath.SelectedValue = config.TfsIterationPath;
-                        if (combobox_IterationPath.SelectedItem == null && combobox_IterationPath.Items.Count > 0)
-                        {
-                            combobox_IterationPath.SelectedIndex = 0;
-                        }
-
-                        textbox_Priority.Value = config.TfsPriority;
                     }
                 }
                 catch (Microsoft.TeamFoundation.TeamFoundationServerUnauthorizedException eError)
